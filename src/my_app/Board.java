@@ -9,21 +9,27 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.Timer;
 /**
  *
  * @author marcos
  */
 
-public class Board extends JPanel {
-
+public class Board extends JPanel implements ActionListener {
     /**
      * Creates new form NewJPanel
      */
-    private final Image [] hola = new Image [10];
+    private final Image [] suelo = new Image [2];
+    private final Image [] robot = new Image [2];
+    private Timer timer;
+    private int size=0;
+    private int x=0;
+    private int y=0;
+    private final int DELAY = 500;
     
     public Board() {
         initBoard();
@@ -55,26 +61,46 @@ public class Board extends JPanel {
         
         
         loadImage();
-
-        setPreferredSize(new Dimension(250, 300));        
+        
+        timer = new Timer(DELAY, this);
+        timer.start();
+        //int w = Application.filas*suelo[0].getHeight(this);
+        //int h =  Application.columnas*suelo[0].getHeight(this);
+       // setPreferredSize(new Dimension(w, h));
     }
     
     private void loadImage() {
-        ImageIcon ii = new ImageIcon(getClass().getResource("/my_app/resources/Suelo.png"));
-        hola[0] = ii.getImage();
-        ii = new ImageIcon(getClass().getResource("/my_app/resources/Robot.png"));
-        hola[1] = ii.getImage();
+        ImageIcon ii = new ImageIcon(getClass().getResource("/my_app/resources/Suelo0.png"));
+        suelo[0] = ii.getImage();
+        ii = new ImageIcon(getClass().getResource("/my_app/resources/Suelo1.png"));
+        suelo[1] = ii.getImage();
+        ii = new ImageIcon(getClass().getResource("/my_app/resources/Robot0.png"));
+        robot[0] = ii.getImage();
+        ii = new ImageIcon(getClass().getResource("/my_app/resources/Robot1.png"));
+        robot[1] = ii.getImage();
     }
     
     @Override
     public void paintComponent(Graphics g) {
-        for(int i=0;i<=10;i++)
-            for(int j=0;j<=10;j++)
-                g.drawImage(hola[0], i*25, j*25, null);
-        g.drawImage(hola[1], 0, 10*25, null);
-        //Sustituir por valores obtenidos del teclado
+        if (Application.filas>29 || Application.columnas>29)
+            size=1;
+        for(int i=0;i<=Application.filas;i++)
+            for(int j=0;j<=Application.columnas;j++)
+                g.drawImage(suelo[size], i*suelo[size].getHeight(this), j*suelo[size].getHeight(this), null);
+        g.drawImage(robot[size], x, Application.columnas*suelo[size].getHeight(this), null);
     }
     
+    @Override
+    public void actionPerformed(ActionEvent e) {
+
+        x += suelo[size].getHeight(this);
+        y += suelo[size].getHeight(this);
+        if (x>Application.columnas*suelo[size].getHeight(this)){
+            x=0;
+            y=0;
+        }
+        repaint();
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
