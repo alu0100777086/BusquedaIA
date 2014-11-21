@@ -5,11 +5,14 @@
  */
 package my_app;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 /**
  *
  * @author marcos
@@ -20,7 +23,7 @@ public class Board extends JPanel {
     /**
      * Creates new form NewJPanel
      */
-    private Image hola;
+    private final Image [] hola = new Image [10];
     
     public Board() {
         initBoard();
@@ -48,29 +51,28 @@ public class Board extends JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void initBoard() {
+        setLayout(new BorderLayout());
+        
         
         loadImage();
-        
-        int w = hola.getWidth(this);
-        int h =  hola.getHeight(this);
-        System.out.println(w);
-        System.out.println(h);
-        setPreferredSize(new Dimension(800, 600));        
+
+        setPreferredSize(new Dimension(250, 300));        
     }
     
     private void loadImage() {
         ImageIcon ii = new ImageIcon(getClass().getResource("/my_app/resources/Suelo.png"));
-        hola = ii.getImage();        
+        hola[0] = ii.getImage();
+        ii = new ImageIcon(getClass().getResource("/my_app/resources/Robot.png"));
+        hola[1] = ii.getImage();
     }
     
     @Override
     public void paintComponent(Graphics g) {
-        g.drawImage(hola, 0, 0, null);
-        g.drawImage(hola, 25, 0, null);
-        g.drawImage(hola, 50, 0, null);
-        g.drawImage(hola, 0, 25, null);
-        g.drawImage(hola, 0, 50, null);
-        g.drawImage(hola, 25, 25, null);
+        for(int i=0;i<=10;i++)
+            for(int j=0;j<=10;j++)
+                g.drawImage(hola[0], i*25, j*25, null);
+        g.drawImage(hola[1], 0, 10*25, null);
+        //Sustituir por valores obtenidos del teclado
     }
     
 
