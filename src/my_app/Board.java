@@ -6,9 +6,9 @@
 package my_app;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.ImageIcon;
@@ -20,6 +20,7 @@ import javax.swing.Timer;
  */
 
 public class Board extends JPanel implements ActionListener {
+
     /**
      * Creates new form NewJPanel
      */
@@ -30,6 +31,7 @@ public class Board extends JPanel implements ActionListener {
     private int x=0;
     private int y=0;
     private final int DELAY = 500;
+    
     
     public Board() {
         initBoard();
@@ -88,20 +90,25 @@ public class Board extends JPanel implements ActionListener {
             for(int j=0;j<=Application.columnas;j++)
                 g.drawImage(suelo[size], i*suelo[size].getHeight(this), j*suelo[size].getHeight(this), null);
         g.drawImage(robot[size], x, Application.columnas*suelo[size].getHeight(this), null);
+        Toolkit.getDefaultToolkit().sync();
     }
     
     @Override
     public void actionPerformed(ActionEvent e) {
-
-        x += suelo[size].getHeight(this);
-        y += suelo[size].getHeight(this);
-        if (x>Application.columnas*suelo[size].getHeight(this)){
-            x=0;
-            y=0;
+        changespeed();
+        if(Application.moving){
+            x += suelo[size].getHeight(this);
+            y += suelo[size].getHeight(this);
+            if (x>Application.columnas*suelo[size].getHeight(this)){
+                x=0;
+                y=0;
+            }
+            repaint();
         }
-        repaint();
     }
-
+    public void changespeed(){
+        timer.setDelay(Application.speed);
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
 }
