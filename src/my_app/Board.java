@@ -7,11 +7,16 @@ package my_app;
 
 import java.awt.BorderLayout;
 import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.ImageIcon;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 /**
@@ -24,14 +29,18 @@ public class Board extends JPanel implements ActionListener {
     /**
      * Creates new form NewJPanel
      */
-    private final Image [] suelo = new Image [2];
-    private final Image [] robot = new Image [2];
+    private BufferedImage suelo;
+    private BufferedImage robot;
     private Timer timer;
-    private int size=0;
     private int x=0;
     private int y=0;
     private final int DELAY = 500;
-    
+    private final int alto = 530;
+    private final int ancho = 530;
+    private boolean up = false;
+    private boolean down = true;
+    private boolean right = false;
+    private boolean left = false;
     
     public Board() {
         initBoard();
@@ -59,56 +68,99 @@ public class Board extends JPanel implements ActionListener {
     }// </editor-fold>//GEN-END:initComponents
 
     private void initBoard() {
-        setLayout(new BorderLayout());
+        //setLayout(new BorderLayout());
         
         
-        loadImage();
+        try {
+            loadImage();
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(Board.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
         timer = new Timer(DELAY, this);
-        timer.start();
+        //timer.start();
         //int w = Application.filas*suelo[0].getHeight(this);
         //int h =  Application.columnas*suelo[0].getHeight(this);
        // setPreferredSize(new Dimension(w, h));
     }
     
-    private void loadImage() {
-        ImageIcon ii = new ImageIcon(getClass().getResource("/my_app/resources/Suelo0.png"));
-        suelo[0] = ii.getImage();
-        ii = new ImageIcon(getClass().getResource("/my_app/resources/Suelo1.png"));
-        suelo[1] = ii.getImage();
-        ii = new ImageIcon(getClass().getResource("/my_app/resources/Robot0.png"));
-        robot[0] = ii.getImage();
-        ii = new ImageIcon(getClass().getResource("/my_app/resources/Robot1.png"));
-        robot[1] = ii.getImage();
+    public void loadImage() throws URISyntaxException {
+        try {
+            suelo = ImageIO.read(new File(getClass().getResource("/my_app/resources/Suelo0.png").toURI()));
+            } catch (IOException e) {
+        }
+        suelo = resize(suelo);
+        /*ii = new ImageIcon(getClass().getResource("/my_app/resources/Suelo1.png"));
+        suelo[1] = ii.getImage();*/
+        try {
+            robot = ImageIO.read(new File(getClass().getResource("/my_app/resources/Robot0.png").toURI()));
+            } catch (IOException e) {
+        }
+        robot = resize(robot);
+        /*ii = new ImageIcon(getClass().getResource("/my_app/resources/Robot1.png"));
+        robot[1] = ii.getImage();*/
     }
     
     @Override
     public void paintComponent(Graphics g) {
-        if (Application.filas>29 || Application.columnas>29)
-            size=1;
-        for(int i=0;i<=Application.filas;i++)
-            for(int j=0;j<=Application.columnas;j++)
-                g.drawImage(suelo[size], i*suelo[size].getHeight(this), j*suelo[size].getHeight(this), null);
-        g.drawImage(robot[size], x, Application.columnas*suelo[size].getHeight(this), null);
+        for(int i=0;i<Application.filas;i++)
+            for(int j=0;j<Application.columnas;j++)
+                g.drawImage(suelo, j*suelo.getWidth(), i*suelo.getHeight(), null);
+        g.drawImage(robot, x, y, null);
         Toolkit.getDefaultToolkit().sync();
     }
     
     @Override
     public void actionPerformed(ActionEvent e) {
-        changespeed();
-        if(Application.moving){
-            x += suelo[size].getHeight(this);
-            y += suelo[size].getHeight(this);
-            if (x>Application.columnas*suelo[size].getHeight(this)){
-                x=0;
-                y=0;
+            if (x==0 && y==0){
+                up = false;
+                right = false;
+                left = false;
+                down = true;
             }
+            if (x==(Application.columnas-1)*suelo.getWidth(this) && y==0){
+                up = false;
+                left = true;
+            }
+            if (x==(Application.columnas-1)*suelo.getWidth(this) && y==(Application.filas-1)*suelo.getHeight(this)){
+                right = false;
+                up = true;
+            }
+            if (x==0 && y==(Application.filas-1)*suelo.getHeight(this)){
+                down = false;
+                right = true;
+            }
+            if (up)
+                y -= suelo.getHeight(this);
+            if (down)
+                y += suelo.getHeight(this);
+            if (right)
+                x += suelo.getWidth(this);
+            if (left)
+                x -= suelo.getWidth(this);
             repaint();
+    }
+    public void changespeed(int speed){
+        if (timer.isRunning()){
+            timer.stop();
+            timer.setDelay(speed);
+        }else{
+            timer.setDelay(speed);
+            timer.start();
         }
+        x = 0;
+        y = 0;
+        repaint();
     }
-    public void changespeed(){
-        timer.setDelay(Application.speed);
-    }
+    
+   public BufferedImage resize(BufferedImage im){
+        BufferedImage aux = new BufferedImage(ancho/Application.columnas, alto/Application.filas, BufferedImage.TYPE_INT_RGB);
+
+        Graphics g = aux.createGraphics();
+        g.drawImage(im, 0, 0, ancho/Application.columnas, alto/Application.filas, null);
+        g.dispose();
+        return aux;
+   }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
 }
